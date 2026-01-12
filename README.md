@@ -11,6 +11,7 @@ This definition provides engineering operations workflows including:
 - **Intake Form**: Internal bug reporting
 - **Boards**: Bug board and incident response board
 - **Dashboard**: Bug metrics, incident MTTR, SLA compliance
+- **Analytics**: Bug resolution trends, incident frequency, deployment velocity, backlog aging
 - **Automations**: Bug triage, critical alerts, incident commander assignment
 
 ## Structure
@@ -36,6 +37,9 @@ This definition provides engineering operations workflows including:
 │   └── incidents.yaml
 ├── dashboards/
 │   └── engineering_dashboard.yaml
+├── analytics/
+│   └── dashboards/
+│       └── engineering_health.yaml
 └── automations/
     └── engineering_automations.yaml
 ```
