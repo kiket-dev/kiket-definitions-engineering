@@ -1,0 +1,194 @@
+model_version: "1.0"
+dashboard:
+  id: engineering-health
+  name: Engineering Health
+  description: Track bug resolution, incident response, and delivery metrics.
+  widgets:
+    - id: bug-resolution-trend
+      type: timeseries
+      title: Bug Resolution Time (Days)
+      query: fct_bug_resolution
+      query_config:
+        model: fct_bug_resolution
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+        order_by:
+          - resolved_date
+      visualization:
+        x: resolved_date
+        y: avg_resolution_days
+        series: severity
+
+    - id: open-bugs-kpi
+      type: kpi
+      title: Open Bugs
+      query: fct_bug_backlog
+      query_config:
+        model: fct_bug_backlog
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+          status: open
+      options:
+        comparison:
+          interval: "7d"
+
+    - id: bugs-by-severity
+      type: leaderboard
+      title: Open Bugs by Severity
+      query: fct_bug_backlog
+      query_config:
+        model: fct_bug_backlog
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+          status: open
+      visualization:
+        group_by: severity
+        value: bug_count
+
+    - id: incident-mttr-trend
+      type: timeseries
+      title: Incident MTTR (Minutes)
+      query: fct_incident_metrics
+      query_config:
+        model: fct_incident_metrics
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+        order_by:
+          - incident_date
+      visualization:
+        x: incident_date
+        y: mttr_minutes
+        series: severity
+
+    - id: incident-frequency
+      type: timeseries
+      title: Incidents by Week
+      query: fct_incident_volume
+      query_config:
+        model: fct_incident_volume
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+        order_by:
+          - incident_week
+      visualization:
+        x: incident_week
+        y: incident_count
+        series: severity
+
+    - id: deployment-frequency
+      type: timeseries
+      title: Deployments per Week
+      query: fct_deployments
+      query_config:
+        model: fct_deployments
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+        order_by:
+          - deploy_week
+      visualization:
+        x: deploy_week
+        y: deployment_count
+
+    - id: backlog-aging
+      type: table
+      title: Bug Backlog Aging
+      query: fct_bug_aging
+      query_config:
+        model: fct_bug_aging
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+        select:
+          - age_bucket
+          - critical_count
+          - high_count
+          - medium_count
+          - low_count
+          - total_count
+        order_by:
+          - age_bucket_order
+
+    - id: recent-incidents
+      type: table
+      title: Recent Incidents
+      query: fct_incident_details
+      query_config:
+        model: fct_incident_details
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+        select:
+          - incident_id
+          - title
+          - severity
+          - status
+          - mttr_minutes
+          - root_cause_category
+        order_by:
+          - created_at DESC
+        limit: 10
+
+  alerts:
+    - query: fct_incident_metrics
+      query_config:
+        model: fct_incident_metrics
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+          severity: critical
+        order_by:
+          - incident_date DESC
+        limit: 1
+      condition: mttr_minutes > 60
+      notify_roles:
+        - manager
+      message: "Critical incident MTTR exceeded 60 minutes"
+
+    - query: fct_bug_backlog
+      query_config:
+        model: fct_bug_backlog
+        parameters:
+          - name: project_id
+            type: integer
+            required: true
+        filters:
+          project_id: ":project_id"
+          severity: critical
+          status: open
+      condition: bug_count > 5
+      notify_roles:
+        - manager
+      message: "More than 5 critical bugs are open"
