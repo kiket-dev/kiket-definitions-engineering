@@ -1,0 +1,129 @@
+model_version: "1.0"
+automations:
+  - id: bug-triage
+    name: Bug Auto-triage
+    description: Automatically categorize and assess severity of new bugs.
+    version: 1.0.0
+    enabled: true
+
+    trigger:
+      event: issue.created
+      conditions:
+        - field: issue_type
+          equals: bug
+
+    actions:
+      - type: ai_action
+        agent: ai.engineering.bug_categorizer
+        store_result_in: custom_fields.category
+      - type: ai_action
+        agent: ai.engineering.duplicate_finder
+        store_result_in: custom_fields.duplicates
+      - type: ai_action
+        agent: ai.engineering.severity_assessor
+        store_result_in: custom_fields.suggested_severity
+
+  - id: critical-bug-alert
+    name: Critical Bug Alert
+    description: Immediate notification for critical bugs.
+    version: 1.0.0
+    enabled: true
+
+    trigger:
+      event: issue.updated
+      conditions:
+        - field: issue_type
+          equals: bug
+        - field: custom_fields.severity
+          equals: critical
+
+    actions:
+      - type: notify
+        recipients:
+          roles: [engineering_lead, oncall]
+        message: "🔴 Critical bug reported: {{issue.title}}"
+        level: critical
+      - type: add_watcher
+        roles: [engineering_lead]
+
+  - id: incident-commander
+    name: Assign Incident Commander
+    description: Auto-assign incident commander for P1/P2 incidents.
+    version: 1.0.0
+    enabled: true
+
+    trigger:
+      event: issue.created
+      conditions:
+        - field: issue_type
+          equals: incident
+        - field: custom_fields.severity
+          in: [P1, P2]
+
+    actions:
+      - type: assign
+        to: oncall
+        field: custom_fields.incident_commander
+      - type: ai_action
+        agent: ai.engineering.log_analyzer
+        store_result_in: comment
+      - type: ai_action
+        agent: ai.engineering.runbook_suggester
+        store_result_in: comment
+      - type: notify
+        recipients:
+          roles: [engineering, oncall]
+        message: "🚨 {{issue.custom_fields.severity}} Incident: {{issue.title}}"
+        level: critical
+
+  - id: postmortem-reminder
+    name: Postmortem Reminder
+    description: Remind team to complete postmortem after incident resolution.
+    version: 1.0.0
+    enabled: true
+
+    trigger:
+      event: issue.transitioned
+      conditions:
+        - field: issue_type
+          equals: incident
+        - field: to_status
+          equals: postmortem
+
+    actions:
+      - type: notify
+        recipients:
+          user: custom_fields.incident_commander
+          roles: [engineering_lead]
+        message: "📝 Postmortem needed for incident #{{issue.id}}: {{issue.title}}"
+      - type: schedule_reminder
+        delay: 48h
+        message: "⏰ Postmortem still pending for incident #{{issue.id}}"
+        conditions:
+          - field: status
+            equals: postmortem
+
+  - id: bug-sla-breach
+    name: Bug SLA Breach Escalation
+    description: Escalate when bug SLA is breached.
+    version: 1.0.0
+    enabled: true
+
+    trigger:
+      event: sla.breached
+      conditions:
+        - field: issue_type
+          equals: bug
+
+    actions:
+      - type: notify
+        recipients:
+          user: assignee
+          roles: [engineering_lead]
+        message: "⛔ SLA BREACHED: Bug #{{issue.id}} ({{issue.custom_fields.severity}})"
+        level: critical
+      - type: add_label
+        label: sla-breached
+      - type: set_field
+        field: custom_fields.escalated
+        value: true

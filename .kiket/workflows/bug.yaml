@@ -1,0 +1,177 @@
+model_version: "1.0"
+workflow:
+  id: bug
+  name: Bug Tracking
+  version: 1.0.0
+  description: Bug lifecycle from report to deployment.
+
+states:
+  reported:
+    type: initial
+    category: pending
+    metadata:
+      label: Reported
+      color: secondary
+      icon: "🐛"
+      description: Bug reported, awaiting triage.
+    on_enter:
+      - action: ai_analyze
+        agent: ai.engineering.bug_categorizer
+        store_result_in: custom_fields.severity
+      - action: ai_analyze
+        agent: ai.engineering.duplicate_finder
+        store_result_in: custom_fields.duplicate_candidates
+      - action: ai_suggest
+        agent: ai.engineering.assignee_suggester
+        store_result_in: custom_fields.suggested_assignee
+
+  triaging:
+    type: active
+    category: active
+    metadata:
+      label: Triaging
+      color: info
+      icon: "🔍"
+      description: Bug being evaluated and prioritized.
+    sla:
+      - condition:
+          field: custom_fields.severity
+          operator: "="
+          value: critical
+        warning: 1h
+        breach: 4h
+      - condition:
+          field: custom_fields.severity
+          operator: "="
+          value: high
+        warning: 4h
+        breach: 24h
+      - default: true
+        warning: 24h
+        breach: 72h
+
+  fixing:
+    type: active
+    category: active
+    metadata:
+      label: Fixing
+      color: primary
+      icon: "🔧"
+      description: Bug being fixed.
+    on_enter:
+      - action: webhook
+        url: "${env.GITHUB_WEBHOOK}"
+        method: POST
+        body:
+          action: create_branch
+          issue_id: "${issue.id}"
+          branch_name: "fix/${issue.id}-${issue.title | slugify}"
+
+  testing:
+    type: active
+    category: review
+    metadata:
+      label: Testing
+      color: warning
+      icon: "🧪"
+      description: Fix being verified.
+    checklist:
+      id: bug_testing
+      title: Testing Checklist
+      required_mode: all
+      items:
+        - id: unit_tests
+          label: Unit tests pass
+          check_type: auto
+          condition:
+            field: custom_fields.ci_status
+            operator: "="
+            value: passed
+        - id: integration_tests
+          label: Integration tests pass
+          check_type: auto
+          condition:
+            field: custom_fields.integration_status
+            operator: "="
+            value: passed
+        - id: manual_qa
+          label: Manual QA verification
+          check_type: manual
+          required: true
+        - id: security_scan
+          label: Security scan clean
+          check_type: auto
+          condition:
+            field: custom_fields.security_status
+            operator: "="
+            value: clean
+
+  deployed:
+    type: final
+    category: completed
+    metadata:
+      label: Deployed
+      color: success
+      icon: "🚀"
+      description: Fix deployed to production.
+    on_enter:
+      - action: notify
+        recipients:
+          fields: [reporter]
+        message: "Bug #${issue.id} has been fixed and deployed!"
+        level: success
+      - action: webhook
+        url: "${env.CHANGELOG_WEBHOOK}"
+        method: POST
+        body:
+          type: bug_fix
+          issue_id: "${issue.id}"
+          title: "${issue.title}"
+
+  wont_fix:
+    type: final
+    category: completed
+    metadata:
+      label: Won't Fix
+      color: secondary
+      icon: "🚫"
+      description: Bug closed without fix (by design, duplicate, etc.).
+
+transitions:
+  - from: reported
+    to: triaging
+    name: Start Triage
+
+  - from: triaging
+    to: fixing
+    name: Assign & Fix
+    conditions:
+      - field: assignee
+        operator: is_present
+
+  - from: triaging
+    to: wont_fix
+    name: Close as Won't Fix
+
+  - from: fixing
+    to: testing
+    name: Submit for Testing
+
+  - from: fixing
+    to: triaging
+    name: Needs More Info
+
+  - from: testing
+    to: deployed
+    name: Deploy
+    conditions:
+      - checklist: bug_testing
+        complete: true
+
+  - from: testing
+    to: fixing
+    name: Reopen (Tests Failed)
+
+  - from: deployed
+    to: fixing
+    name: Regression Found

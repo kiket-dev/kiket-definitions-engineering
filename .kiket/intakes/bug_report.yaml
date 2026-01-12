@@ -1,0 +1,114 @@
+model_version: "1.0"
+intake:
+  id: bug-report
+  name: Report a Bug
+  description: Internal bug reporting form.
+  version: 1.0.0
+
+  public: false  # Internal only
+  slug: bug
+
+  branding:
+    title: "Report a Bug"
+    subtitle: "Help us improve by reporting issues you've found."
+
+  issue:
+    type: bug
+    workflow: bug
+    initial_state: reported
+    title_template: "[Bug] {{title}}"
+
+  fields:
+    - key: title
+      type: string
+      label: Bug Title
+      placeholder: "Brief description of the bug"
+      required: true
+      max_length: 200
+      map_to: title
+
+    - key: severity
+      type: enum
+      label: Severity
+      required: true
+      options:
+        - value: critical
+          label: "🔴 Critical - Production down, data loss"
+        - value: high
+          label: "🟠 High - Major feature broken"
+        - value: medium
+          label: "🟡 Medium - Feature impaired, workaround exists"
+        - value: low
+          label: "🟢 Low - Minor issue, cosmetic"
+      map_to: custom_fields.severity
+
+    - key: component
+      type: string
+      label: Component/Area
+      placeholder: "e.g., Authentication, Dashboard, API"
+      required: false
+      map_to: custom_fields.component
+
+    - key: environment
+      type: enum
+      label: Environment
+      required: true
+      options:
+        - value: production
+          label: "Production"
+        - value: staging
+          label: "Staging"
+        - value: development
+          label: "Development"
+      map_to: custom_fields.environment
+
+    - key: steps_to_reproduce
+      type: markdown
+      label: Steps to Reproduce
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. See error...
+      required: true
+      map_to: custom_fields.steps_to_reproduce
+
+    - key: expected_behavior
+      type: text
+      label: Expected Behavior
+      placeholder: "What should have happened?"
+      required: true
+      map_to: custom_fields.expected_behavior
+
+    - key: actual_behavior
+      type: text
+      label: Actual Behavior
+      placeholder: "What actually happened?"
+      required: true
+      map_to: custom_fields.actual_behavior
+
+    - key: description
+      type: markdown
+      label: Additional Context
+      placeholder: "Any other relevant information, error messages, screenshots..."
+      required: false
+      map_to: description
+
+    - key: attachments
+      type: file
+      label: Screenshots/Logs
+      required: false
+      multiple: true
+      max_size: 25MB
+
+  confirmation:
+    title: "Bug Reported"
+    message: |
+      Your bug report has been submitted and will be triaged shortly.
+
+      **Bug ID:** #{{issue.id}}
+
+  notifications:
+    on_submit:
+      - type: slack
+        channel: "#engineering-bugs"
+        message: "🐛 New bug reported: {{title}} ({{severity}})"

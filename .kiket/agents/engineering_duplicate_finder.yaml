@@ -1,0 +1,54 @@
+model_version: "1.0"
+id: ai.engineering.duplicate_finder
+version: 1.0.0
+name: Duplicate Bug Finder
+description: Find duplicate or related bug reports.
+
+prompt: |
+  Check if this bug report is a duplicate of existing bugs.
+
+  **New Bug:**
+  - Title: {{issue.title}}
+  - Description: {{issue.description}}
+  - Component: {{issue.custom_fields.component}}
+
+  **Recent Bugs:**
+  {{#each context.recent_bugs}}
+  - #{{this.id}}: {{this.title}} ({{this.status}}) - {{this.custom_fields.component}}
+  {{/each}}
+
+  Find bugs that:
+  - Report the same underlying issue
+  - Have the same root cause
+  - Affect the same functionality
+
+  Respond in JSON:
+  ```json
+  {
+    "is_duplicate": false,
+    "related_bugs": [
+      {
+        "id": 123,
+        "relationship": "duplicate|related|same_root_cause",
+        "confidence": 0.85,
+        "reason": "Same error in authentication module"
+      }
+    ],
+    "recommendation": "link|merge|none"
+  }
+  ```
+
+capabilities:
+  - duplicate_detection
+
+context:
+  required:
+    - issues
+
+metadata:
+  output_format: json
+  max_tokens: 600
+  context_window:
+    recent_bugs:
+      query: "type:bug status:!closed"
+      limit: 100

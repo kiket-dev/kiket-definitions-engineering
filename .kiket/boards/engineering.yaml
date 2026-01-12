@@ -1,0 +1,79 @@
+model_version: "1.0"
+board:
+  id: engineering-board
+  name: Engineering Board
+  description: Bug tracking and development board.
+  version: 1.0.0
+
+  filters:
+    issue_types:
+      - bug
+    workflows:
+      - bug
+
+  columns:
+    - id: reported
+      name: Reported
+      states:
+        - reported
+      wip_limit: null
+      color: secondary
+
+    - id: triaging
+      name: Triaging
+      states:
+        - triaging
+      wip_limit: 10
+      color: info
+
+    - id: fixing
+      name: Fixing
+      states:
+        - fixing
+      wip_limit: 8
+      color: primary
+
+    - id: testing
+      name: Testing
+      states:
+        - testing
+      wip_limit: 10
+      color: warning
+
+    - id: deployed
+      name: Deployed
+      states:
+        - deployed
+      wip_limit: null
+      color: success
+
+  swimlanes:
+    enabled: true
+    field: custom_fields.severity
+    values:
+      - value: critical
+        label: "🔴 Critical"
+      - value: high
+        label: "🟠 High"
+      - value: medium
+        label: "🟡 Medium"
+      - value: low
+        label: "🟢 Low"
+
+  card_fields:
+    - title
+    - custom_fields.severity
+    - custom_fields.component
+    - assignee
+    - sla_status
+
+  quick_filters:
+    - field: assignee
+      label: My Bugs
+      value: "@me"
+    - field: custom_fields.severity
+      label: Critical/High
+      values: [critical, high]
+    - field: sla_status
+      label: SLA At Risk
+      values: [warning, breached]

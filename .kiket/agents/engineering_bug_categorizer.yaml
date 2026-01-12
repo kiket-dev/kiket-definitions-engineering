@@ -1,0 +1,58 @@
+model_version: "1.0"
+id: ai.engineering.bug_categorizer
+version: 1.0.0
+name: Bug Categorizer
+description: |
+  Automatically categorize bugs by severity, component, and type.
+
+prompt: |
+  Analyze this bug report and categorize it.
+
+  **Bug Report:**
+  - Title: {{issue.title}}
+  - Description: {{issue.description}}
+  - Steps to Reproduce: {{issue.custom_fields.steps_to_reproduce}}
+  - Expected: {{issue.custom_fields.expected_behavior}}
+  - Actual: {{issue.custom_fields.actual_behavior}}
+  - Environment: {{issue.custom_fields.environment}}
+
+  Determine:
+  1. **Severity**: critical, high, medium, low
+     - critical: Production down, data loss, security vulnerability
+     - high: Major feature broken, no workaround
+     - medium: Feature impaired, workaround available
+     - low: Minor issue, cosmetic
+
+  2. **Component**: Which part of the system is affected
+
+  3. **Bug Type**: regression, new_bug, edge_case, configuration, environment
+
+  Respond in JSON:
+  ```json
+  {
+    "severity": "medium",
+    "component": "authentication",
+    "bug_type": "regression",
+    "confidence": 85,
+    "reasoning": "Login failure affects all users, likely introduced in recent release"
+  }
+  ```
+
+capabilities:
+  - bug_triage
+  - categorization
+
+context:
+  required:
+    - issues
+  optional:
+    - code
+    - telemetry
+
+human_in_loop:
+  required: false
+  review_threshold: 0.7
+
+metadata:
+  output_format: json
+  max_tokens: 500

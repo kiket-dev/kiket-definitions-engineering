@@ -1,0 +1,47 @@
+model_version: "1.0"
+id: ai.engineering.log_analyzer
+version: 1.0.0
+name: Log Analyzer
+description: Analyze logs to identify root cause and patterns.
+
+prompt: |
+  Analyze logs related to this incident.
+
+  **Incident:**
+  - Title: {{issue.title}}
+  - Affected Services: {{issue.custom_fields.affected_services}}
+  - Started: {{context.incident_start}}
+
+  **Recent Logs:**
+  ```
+  {{context.logs}}
+  ```
+
+  **Recent Deployments:**
+  {{#each context.recent_deployments}}
+  - {{this.timestamp}}: {{this.service}} - {{this.version}} ({{this.commit}})
+  {{/each}}
+
+  Analyze:
+  1. **Error Patterns**: What errors are occurring?
+  2. **Root Cause Hypothesis**: What likely caused this?
+  3. **Timeline**: When did it start? Any correlation with deployments?
+  4. **Affected Components**: Which services/components are involved?
+
+  Format as a diagnostic report for the incident responder.
+
+capabilities:
+  - log_analysis
+  - root_cause_analysis
+
+context:
+  required:
+    - issues
+    - telemetry
+
+human_in_loop:
+  required: false
+
+metadata:
+  output_format: markdown
+  max_tokens: 2000

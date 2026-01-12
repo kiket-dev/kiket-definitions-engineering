@@ -1,0 +1,142 @@
+model_version: "1.0"
+dashboard:
+  id: engineering-dashboard
+  name: Engineering Dashboard
+  description: Bug tracking and incident metrics.
+  version: 1.0.0
+
+  layout:
+    columns: 4
+
+  widgets:
+    # Row 1: Bug Metrics
+    - id: open-bugs
+      type: metric
+      title: Open Bugs
+      position: {row: 1, col: 1}
+      query:
+        issue_types: [bug]
+        statuses: [reported, triaging, fixing, testing]
+        aggregate: count
+
+    - id: critical-bugs
+      type: metric
+      title: Critical/High Bugs
+      position: {row: 1, col: 2}
+      query:
+        issue_types: [bug]
+        statuses: [reported, triaging, fixing, testing]
+        custom_fields.severity: [critical, high]
+        aggregate: count
+      thresholds:
+        warning: 5
+        critical: 10
+
+    - id: active-incidents
+      type: metric
+      title: Active Incidents
+      position: {row: 1, col: 3}
+      query:
+        issue_types: [incident]
+        statuses: [detected, investigating, mitigating]
+        aggregate: count
+      thresholds:
+        warning: 1
+        critical: 2
+
+    - id: p1-p2-incidents
+      type: metric
+      title: P1/P2 Incidents
+      position: {row: 1, col: 4}
+      query:
+        issue_types: [incident]
+        statuses: [detected, investigating, mitigating]
+        custom_fields.severity: [P1, P2]
+        aggregate: count
+      thresholds:
+        warning: 1
+        critical: 1
+
+    # Row 2: Bug Distribution
+    - id: bugs-by-severity
+      type: pie_chart
+      title: Bugs by Severity
+      position: {row: 2, col: 1, span: 2}
+      query:
+        issue_types: [bug]
+        statuses: [reported, triaging, fixing, testing]
+        group_by: custom_fields.severity
+
+    - id: bugs-by-component
+      type: bar_chart
+      title: Bugs by Component
+      position: {row: 2, col: 3, span: 2}
+      query:
+        issue_types: [bug]
+        statuses: [reported, triaging, fixing, testing]
+        group_by: custom_fields.component
+
+    # Row 3: SLA & Times
+    - id: bug-sla
+      type: gauge
+      title: Bug SLA Compliance
+      position: {row: 3, col: 1}
+      query:
+        issue_types: [bug]
+        date_range: last_30_days
+        aggregate: sla_compliance_percentage
+      thresholds:
+        critical: 80
+        warning: 90
+
+    - id: mttr
+      type: metric
+      title: MTTR (Incidents)
+      position: {row: 3, col: 2}
+      query:
+        issue_types: [incident]
+        statuses: [resolved, postmortem]
+        date_range: last_30_days
+        aggregate: avg
+        field: resolution_time
+      format: duration
+
+    - id: bugs-by-assignee
+      type: bar_chart
+      title: Bugs by Assignee
+      position: {row: 3, col: 3, span: 2}
+      query:
+        issue_types: [bug]
+        statuses: [fixing, testing]
+        group_by: assignee
+
+    # Row 4: Trends
+    - id: bug-trend
+      type: line_chart
+      title: Bug Trend (30 Days)
+      position: {row: 4, col: 1, span: 2}
+      query:
+        issue_types: [bug]
+        date_range: last_30_days
+        group_by: created_date
+        interval: day
+        series:
+          - name: Reported
+            aggregate: count
+            filter: status_was:reported
+          - name: Fixed
+            aggregate: count
+            filter: status_became:deployed
+
+    - id: incident-trend
+      type: line_chart
+      title: Incidents (90 Days)
+      position: {row: 4, col: 3, span: 2}
+      query:
+        issue_types: [incident]
+        date_range: last_90_days
+        aggregate: count
+        group_by: created_date
+        interval: week
+
+  refresh_interval: 60  # 1 minute

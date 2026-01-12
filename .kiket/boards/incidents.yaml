@@ -1,0 +1,77 @@
+model_version: "1.0"
+board:
+  id: incidents-board
+  name: Incident Response
+  description: Active incidents and response tracking.
+  version: 1.0.0
+
+  filters:
+    issue_types:
+      - incident
+    workflows:
+      - incident
+
+  columns:
+    - id: detected
+      name: Detected
+      states:
+        - detected
+      wip_limit: null
+      color: danger
+
+    - id: investigating
+      name: Investigating
+      states:
+        - investigating
+      wip_limit: 5
+      color: warning
+
+    - id: mitigating
+      name: Mitigating
+      states:
+        - mitigating
+      wip_limit: 5
+      color: primary
+
+    - id: resolved
+      name: Resolved
+      states:
+        - resolved
+      wip_limit: null
+      color: success
+
+    - id: postmortem
+      name: Postmortem
+      states:
+        - postmortem
+      wip_limit: null
+      color: info
+
+  swimlanes:
+    enabled: true
+    field: custom_fields.severity
+    values:
+      - value: P1
+        label: "🚨 P1 - Critical"
+      - value: P2
+        label: "🔴 P2 - High"
+      - value: P3
+        label: "🟠 P3 - Medium"
+      - value: P4
+        label: "🟡 P4 - Low"
+
+  card_fields:
+    - title
+    - custom_fields.severity
+    - custom_fields.affected_services
+    - assignee
+    - sla_status
+    - custom_fields.incident_commander
+
+  quick_filters:
+    - field: custom_fields.severity
+      label: P1/P2
+      values: [P1, P2]
+    - field: status
+      label: Active
+      values: [detected, investigating, mitigating]

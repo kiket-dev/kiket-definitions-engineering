@@ -1,0 +1,187 @@
+model_version: "1.0"
+workflow:
+  id: incident
+  name: Incident Response
+  version: 1.0.0
+  description: Production incident management with severity-based SLAs.
+
+states:
+  detected:
+    type: initial
+    category: pending
+    metadata:
+      label: Detected
+      color: danger
+      icon: "🚨"
+      description: Incident detected, awaiting response.
+    on_enter:
+      - action: ai_analyze
+        agent: ai.engineering.severity_assessor
+        store_result_in: custom_fields.severity
+      - action: notify
+        recipients:
+          roles: [oncall, engineering_lead]
+        message: "🚨 INCIDENT: ${issue.title} - Severity: ${issue.custom_fields.severity}"
+        level: critical
+      - action: webhook
+        url: "${env.SLACK_WEBHOOK}"
+        method: POST
+        body:
+          channel: "#incidents"
+          text: "🚨 New incident: ${issue.title}"
+          attachments:
+            - color: danger
+              fields:
+                - title: Severity
+                  value: "${issue.custom_fields.severity}"
+                  short: true
+                - title: Affected Services
+                  value: "${issue.custom_fields.affected_services}"
+                  short: true
+
+  investigating:
+    type: active
+    category: active
+    metadata:
+      label: Investigating
+      color: warning
+      icon: "🔍"
+      description: Actively investigating root cause.
+    on_enter:
+      - action: ai_analyze
+        agent: ai.engineering.log_analyzer
+        store_result_in: comment
+      - action: ai_suggest
+        agent: ai.engineering.runbook_suggester
+        store_result_in: comment
+    sla:
+      - condition:
+          field: custom_fields.severity
+          operator: "="
+          value: p1
+        warning: 5m
+        breach: 15m
+      - condition:
+          field: custom_fields.severity
+          operator: "="
+          value: p2
+        warning: 30m
+        breach: 1h
+      - condition:
+          field: custom_fields.severity
+          operator: "="
+          value: p3
+        warning: 2h
+        breach: 4h
+      - default: true
+        warning: 4h
+        breach: 24h
+
+  mitigating:
+    type: active
+    category: active
+    metadata:
+      label: Mitigating
+      color: primary
+      icon: "🔧"
+      description: Applying fix or workaround.
+    on_enter:
+      - action: webhook
+        url: "${env.STATUS_PAGE_WEBHOOK}"
+        method: POST
+        body:
+          status: investigating
+          incident_id: "${issue.id}"
+          message: "We are aware of the issue and actively working on a fix."
+
+  resolved:
+    type: active
+    category: review
+    metadata:
+      label: Resolved
+      color: success
+      icon: "✅"
+      description: Incident resolved, monitoring for recurrence.
+    on_enter:
+      - action: notify
+        recipients:
+          roles: [engineering, product]
+        message: "✅ Incident resolved: ${issue.title}"
+        level: success
+      - action: webhook
+        url: "${env.STATUS_PAGE_WEBHOOK}"
+        method: POST
+        body:
+          status: resolved
+          incident_id: "${issue.id}"
+
+  postmortem:
+    type: final
+    category: completed
+    metadata:
+      label: Postmortem Complete
+      color: secondary
+      icon: "📋"
+      description: Postmortem completed and action items created.
+    checklist:
+      id: postmortem_checklist
+      title: Postmortem Requirements
+      required_mode: all
+      items:
+        - id: timeline_documented
+          label: Timeline documented
+          check_type: manual
+          required: true
+        - id: root_cause_identified
+          label: Root cause identified
+          check_type: manual
+          required: true
+        - id: action_items_created
+          label: Action items created
+          check_type: manual
+          required: true
+        - id: stakeholders_notified
+          label: Stakeholders notified
+          check_type: manual
+          required: true
+    on_complete:
+      - action: anchor_data
+        data:
+          type: incident_postmortem
+          incident_id: "${issue.id}"
+          severity: "${issue.custom_fields.severity}"
+          duration_minutes: "${context.incident_duration}"
+          root_cause: "${issue.custom_fields.root_cause}"
+        tags: [incident, postmortem, compliance]
+
+transitions:
+  - from: detected
+    to: investigating
+    name: Acknowledge
+
+  - from: investigating
+    to: mitigating
+    name: Root Cause Found
+
+  - from: investigating
+    to: resolved
+    name: False Alarm
+
+  - from: mitigating
+    to: resolved
+    name: Fix Applied
+
+  - from: mitigating
+    to: investigating
+    name: Fix Failed
+
+  - from: resolved
+    to: postmortem
+    name: Complete Postmortem
+    conditions:
+      - checklist: postmortem_checklist
+        complete: true
+
+  - from: resolved
+    to: investigating
+    name: Incident Recurred

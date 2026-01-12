@@ -1,0 +1,56 @@
+model_version: "1.0"
+id: ai.engineering.runbook_suggester
+version: 1.0.0
+name: Runbook Suggester
+description: Suggest relevant runbooks and remediation steps.
+
+prompt: |
+  Suggest runbooks and remediation steps for this incident.
+
+  **Incident:**
+  - Title: {{issue.title}}
+  - Severity: {{issue.custom_fields.severity}}
+  - Affected Services: {{issue.custom_fields.affected_services}}
+  - Symptoms: {{issue.description}}
+
+  **Available Runbooks:**
+  {{#each context.runbooks}}
+  - {{this.title}}: {{this.summary}} (tags: {{this.tags}})
+  {{/each}}
+
+  **Similar Past Incidents:**
+  {{#each context.similar_incidents}}
+  - #{{this.id}}: {{this.title}} - Resolution: {{this.resolution}}
+  {{/each}}
+
+  Provide:
+  1. **Recommended Runbooks**: Which runbooks apply?
+  2. **Immediate Actions**: First steps to take right now
+  3. **Investigation Steps**: How to diagnose further
+  4. **Mitigation Options**: Possible quick fixes or workarounds
+  5. **Escalation Path**: When and who to escalate to
+
+capabilities:
+  - runbook_suggestion
+  - remediation
+
+context:
+  required:
+    - issues
+    - documents
+
+human_in_loop:
+  required: false
+
+metadata:
+  output_format: markdown
+  max_tokens: 1500
+  context_window:
+    runbooks:
+      source: knowledge_base
+      filter: "type:runbook"
+      limit: 20
+    similar_incidents:
+      query: "type:incident status:postmortem"
+      similarity_threshold: 0.7
+      limit: 5

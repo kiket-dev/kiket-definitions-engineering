@@ -1,0 +1,14 @@
+model_version: "1.0"
+project:
+  id: engineering
+  name: Engineering Operations
+  version: 1.0.0
+  description: Bug tracking, incident response, and engineering workflows.
+
+  extensions:
+    required:
+      - github
+    optional:
+      - slack
+      - pagerduty
+      - jira

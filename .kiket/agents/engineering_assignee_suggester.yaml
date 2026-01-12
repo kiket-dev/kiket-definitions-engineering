@@ -1,0 +1,51 @@
+model_version: "1.0"
+id: ai.engineering.assignee_suggester
+version: 1.0.0
+name: Assignee Suggester
+description: Suggest the best developer to fix a bug based on expertise and workload.
+
+prompt: |
+  Suggest the best assignee for this bug.
+
+  **Bug:**
+  - Title: {{issue.title}}
+  - Component: {{issue.custom_fields.component}}
+  - Severity: {{issue.custom_fields.severity}}
+
+  **Team Members:**
+  {{#each context.team_members}}
+  - {{this.name}}:
+    - Expertise: {{this.expertise}}
+    - Current workload: {{this.open_issues}} open issues
+    - Recent activity in {{issue.custom_fields.component}}: {{this.component_commits}} commits
+  {{/each}}
+
+  Consider:
+  1. Component expertise
+  2. Recent activity in related code
+  3. Current workload
+  4. Availability
+
+  Respond in JSON:
+  ```json
+  {
+    "suggested_assignee": "developer@example.com",
+    "confidence": 0.85,
+    "reasoning": "Most recent commits to auth module, manageable workload",
+    "alternatives": [
+      {"email": "other@example.com", "reason": "Also familiar, higher workload"}
+    ]
+  }
+  ```
+
+capabilities:
+  - assignment
+
+context:
+  required:
+    - issues
+    - operations
+
+metadata:
+  output_format: json
+  max_tokens: 500
