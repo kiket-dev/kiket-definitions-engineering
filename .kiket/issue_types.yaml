@@ -1,61 +1,31 @@
 model_version: "1.0"
 
 issue_types:
-  bug:
-    name: Bug
-    description: Software bug or defect
-    icon: "🐛"
-    color: "#DC2626"
-    workflow: bug
-    fields:
-      - key: severity
-        type: enum
-        label: Severity
-        options: [low, medium, high, critical]
-        required: true
-      - key: component
-        type: string
-        label: Component
-      - key: environment
-        type: enum
-        label: Environment
-        options: [development, staging, production]
-      - key: steps_to_reproduce
-        type: text
-        label: Steps to Reproduce
-      - key: expected_behavior
-        type: text
-        label: Expected Behavior
-      - key: actual_behavior
-        type: text
-        label: Actual Behavior
-
-  incident:
-    name: Incident
-    description: Production incident or outage
-    icon: "🚨"
-    color: "#B91C1C"
-    workflow: incident
-    fields:
-      - key: severity
-        type: enum
-        label: Severity
-        options: [P1, P2, P3, P4]
-        required: true
-      - key: affected_services
-        type: string
-        label: Affected Services
-      - key: customer_impact
-        type: enum
-        label: Customer Impact
-        options: [none, partial, major, complete]
-      - key: detection_method
-        type: enum
-        label: Detection Method
-        options: [monitoring, customer_report, internal, automated]
-      - key: incident_commander
-        type: string
-        label: Incident Commander
-      - key: postmortem_url
-        type: url
-        label: Postmortem URL
+  - key: bug
+    label: Bug
+    allow_children: false
+    color: danger
+    icon: bug
+    position: 0
+    active: true
+  - key: incident
+    label: Incident
+    allow_children: false
+    color: danger
+    icon: exclamation-triangle
+    position: 1
+    active: true
+  - key: task
+    label: Task
+    allow_children: false
+    color: info
+    icon: check-square
+    position: 2
+    active: true
+  - key: story
+    label: Story
+    allow_children: true
+    color: primary
+    icon: bookmark
+    position: 3
+    active: true
