@@ -5,6 +5,17 @@ project:
   version: 1.0.0
   description: Bug tracking, incident response, and engineering workflows.
 
+  team:
+    roles:
+      - name: developer
+        description: Software developer working on features and fixes
+      - name: qa
+        description: Quality assurance engineer responsible for testing
+      - name: devops
+        description: DevOps engineer managing infrastructure and deployments
+      - name: tech_lead
+        description: Technical lead overseeing architecture and code reviews
+
   extensions:
     required:
       - github
