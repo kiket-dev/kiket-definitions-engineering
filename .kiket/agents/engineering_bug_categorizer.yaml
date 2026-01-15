@@ -51,7 +51,8 @@ context:
 
 human_in_loop:
   required: false
-  review_threshold: 0.7
+
+confidence_threshold: 0.7
 
 metadata:
   output_format: json
