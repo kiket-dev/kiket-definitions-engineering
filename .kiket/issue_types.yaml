@@ -8,13 +8,15 @@ issue_types:
     icon: bug
     position: 0
     active: true
+    workflow: bug
   - key: incident
     label: Incident
     allow_children: false
     color: danger
-    icon: exclamation-triangle
+    icon: flag
     position: 1
     active: true
+    workflow: incident
   - key: task
     label: Task
     allow_children: false
