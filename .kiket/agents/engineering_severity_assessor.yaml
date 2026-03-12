@@ -1,60 +1,67 @@
 model_version: "1.0"
-id: ai.engineering.severity_assessor
-version: 1.0.0
-name: Incident Severity Assessor
-description: Assess incident severity (P1-P4) based on impact.
+agent:
+  id: ai.engineering.severity_assessor
+  version: 1.0.0
+  name: Incident Severity Assessor
+  description: Assess incident severity (P1-P4) based on impact.
 
-prompt: |
-  Assess the severity of this incident.
+  prompts:
+    - role: system
+      content: |
+        Assess the severity of this incident.
 
-  **Incident:**
-  - Title: {{issue.title}}
-  - Description: {{issue.description}}
-  - Affected Services: {{issue.custom_fields.affected_services}}
-  - Detection Method: {{issue.custom_fields.detection_method}}
+        **Incident:**
+        - Title: {{issue.title}}
+        - Description: {{issue.description}}
+        - Affected Services: {{issue.custom_fields.affected_services}}
+        - Detection Method: {{issue.custom_fields.detection_method}}
 
-  **Severity Levels:**
-  - **P1 (Critical)**: Complete outage, data loss, security breach
-  - **P2 (High)**: Major feature down, significant user impact
-  - **P3 (Medium)**: Degraded performance, partial functionality loss
-  - **P4 (Low)**: Minor issue, cosmetic, single user affected
+        **Severity Levels:**
+        - **P1 (Critical)**: Complete outage, data loss, security breach
+        - **P2 (High)**: Major feature down, significant user impact
+        - **P3 (Medium)**: Degraded performance, partial functionality loss
+        - **P4 (Low)**: Minor issue, cosmetic, single user affected
 
-  **Impact Factors:**
-  - Number of users affected
-  - Revenue impact
-  - Data integrity risk
-  - Security implications
-  - Workaround availability
+        **Impact Factors:**
+        - Number of users affected
+        - Revenue impact
+        - Data integrity risk
+        - Security implications
+        - Workaround availability
 
-  Respond in JSON:
-  ```json
-  {
-    "severity": "p2",
-    "customer_impact": "major",
-    "confidence": 0.9,
-    "impact_assessment": {
-      "users_affected": "all",
-      "revenue_impact": "high",
-      "data_risk": "none",
-      "security_risk": "none"
-    },
-    "reasoning": "Payment processing down affects all customers attempting purchases"
-  }
-  ```
+        Respond in JSON:
+        ```json
+        {
+          "severity": "p2",
+          "customer_impact": "major",
+          "confidence": 0.9,
+          "impact_assessment": {
+            "users_affected": "all",
+            "revenue_impact": "high",
+            "data_risk": "none",
+            "security_risk": "none"
+          },
+          "reasoning": "Payment processing down affects all customers attempting purchases"
+        }
+        ```
 
-capabilities:
-  - incident_triage
-  - severity_assessment
+  capabilities:
+    - incident_triage
+    - severity_assessment
 
-context:
-  required:
-    - issues
-  optional:
-    - telemetry
+  inputs:
+    - name: issue
+      type: object
+      description: The incident to assess
 
-human_in_loop:
-  required: false
+  outputs:
+    - name: severity
+      type: string
+    - name: customer_impact
+      type: string
+    - name: confidence
+      type: number
+    - name: reasoning
+      type: string
 
-metadata:
-  output_format: json
-  max_tokens: 500
+  tools: []

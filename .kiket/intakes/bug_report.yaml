@@ -1,5 +1,5 @@
 model_version: "1.0"
-intake:
+intake_form:
   id: bug-report
   name: Report a Bug
   description: Internal bug reporting form.
