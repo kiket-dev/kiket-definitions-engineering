@@ -23,3 +23,59 @@ project:
       - slack
       - pagerduty
       - jira
+
+  seed_data:
+    issues:
+      - title: Memory leak in Sidekiq worker processing large CSV imports
+        description: The ImportJob worker memory grows unbounded when processing files over 100k rows. OOM kills occur after ~45 minutes.
+        issue_type: bug
+        status: fixing
+        priority: critical
+        labels:
+          - performance
+          - sidekiq
+
+      - title: Production database connection pool exhaustion during peak hours
+        description: Between 2-4pm UTC the connection pool saturates, causing 503 errors. Likely caused by long-running analytics queries.
+        issue_type: incident
+        status: investigating
+        priority: critical
+        labels:
+          - database
+          - availability
+
+      - title: Add structured logging to webhook delivery pipeline
+        description: Webhook delivery failures are hard to debug without request/response payloads in logs. Add structured JSON logging.
+        issue_type: task
+        status: reported
+        priority: medium
+        labels:
+          - observability
+          - webhooks
+
+      - title: Race condition in optimistic locking on board column reorder
+        description: When two users reorder columns simultaneously, one update is silently lost. The lock_version check is missing.
+        issue_type: bug
+        status: testing
+        priority: high
+        labels:
+          - concurrency
+          - data-integrity
+
+      - title: Implement canary deployment pipeline for Cloud Run services
+        description: Currently all deployments are full cutover. Add canary rollouts with automatic rollback on error rate spikes.
+        issue_type: story
+        status: reported
+        priority: medium
+        labels:
+          - devops
+          - deployment
+
+      - title: Upgrade Rails from 8.0 to 8.1 for async query support
+        description: Rails 8.1 async query loading will help reduce page load times on data-heavy dashboard views.
+        issue_type: task
+        status: fixing
+        priority: low
+        labels:
+          - framework
+          - performance
