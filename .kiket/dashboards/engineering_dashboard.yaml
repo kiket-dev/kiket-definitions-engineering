@@ -15,7 +15,7 @@ dashboard:
       title: Open Bugs
       position: {row: 1, col: 1}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         statuses: [reported, triaging, fixing, testing]
         aggregate: count
 
@@ -24,7 +24,7 @@ dashboard:
       title: Critical/High Bugs
       position: {row: 1, col: 2}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         statuses: [reported, triaging, fixing, testing]
         custom_fields.severity: [critical, high]
         aggregate: count
@@ -37,7 +37,7 @@ dashboard:
       title: Active Incidents
       position: {row: 1, col: 3}
       query:
-        issue_types: [incident]
+        case_types: [incident]
         statuses: [detected, investigating, mitigating]
         aggregate: count
       thresholds:
@@ -49,7 +49,7 @@ dashboard:
       title: P1/P2 Incidents
       position: {row: 1, col: 4}
       query:
-        issue_types: [incident]
+        case_types: [incident]
         statuses: [detected, investigating, mitigating]
         custom_fields.severity: [P1, P2]
         aggregate: count
@@ -63,7 +63,7 @@ dashboard:
       title: Bugs by Severity
       position: {row: 2, col: 1, span: 2}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         statuses: [reported, triaging, fixing, testing]
         group_by: custom_fields.severity
 
@@ -72,7 +72,7 @@ dashboard:
       title: Bugs by Component
       position: {row: 2, col: 3, span: 2}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         statuses: [reported, triaging, fixing, testing]
         group_by: custom_fields.component
 
@@ -82,7 +82,7 @@ dashboard:
       title: Bug SLA Compliance
       position: {row: 3, col: 1}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         date_range: last_30_days
         aggregate: sla_compliance_percentage
       thresholds:
@@ -94,7 +94,7 @@ dashboard:
       title: MTTR (Incidents)
       position: {row: 3, col: 2}
       query:
-        issue_types: [incident]
+        case_types: [incident]
         statuses: [resolved, postmortem]
         date_range: last_30_days
         aggregate: avg
@@ -106,7 +106,7 @@ dashboard:
       title: Bugs by Assignee
       position: {row: 3, col: 3, span: 2}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         statuses: [fixing, testing]
         group_by: assignee
 
@@ -116,7 +116,7 @@ dashboard:
       title: Bug Trend (30 Days)
       position: {row: 4, col: 1, span: 2}
       query:
-        issue_types: [bug]
+        case_types: [bug]
         date_range: last_30_days
         group_by: created_date
         interval: day
@@ -133,7 +133,7 @@ dashboard:
       title: Incidents (90 Days)
       position: {row: 4, col: 3, span: 2}
       query:
-        issue_types: [incident]
+        case_types: [incident]
         date_range: last_90_days
         aggregate: count
         group_by: created_date

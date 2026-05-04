@@ -7,9 +7,9 @@ automations:
     enabled: true
 
     trigger:
-      event: issue.created
+      event: case.created
       conditions:
-        - field: issue_type
+        - field: case_type
           equals: bug
 
     actions:
@@ -30,9 +30,9 @@ automations:
     enabled: true
 
     trigger:
-      event: issue.updated
+      event: case.updated
       conditions:
-        - field: issue_type
+        - field: case_type
           equals: bug
         - field: custom_fields.severity
           equals: critical
@@ -53,9 +53,9 @@ automations:
     enabled: true
 
     trigger:
-      event: issue.created
+      event: case.created
       conditions:
-        - field: issue_type
+        - field: case_type
           equals: incident
         - field: custom_fields.severity
           in: [P1, P2]
@@ -83,9 +83,9 @@ automations:
     enabled: true
 
     trigger:
-      event: issue.transitioned
+      event: case.transitioned
       conditions:
-        - field: issue_type
+        - field: case_type
           equals: incident
         - field: to_status
           equals: postmortem
@@ -112,7 +112,7 @@ automations:
     trigger:
       event: sla.breached
       conditions:
-        - field: issue_type
+        - field: case_type
           equals: bug
 
     actions:

@@ -7,7 +7,7 @@ board:
   workflow: bug
 
 filters:
-  issue_types:
+  case_types:
     - bug
   workflows:
     - bug

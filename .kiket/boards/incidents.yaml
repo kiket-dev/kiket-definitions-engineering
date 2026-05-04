@@ -7,7 +7,7 @@ board:
   workflow: incident
 
 filters:
-  issue_types:
+  case_types:
     - incident
   workflows:
     - incident
