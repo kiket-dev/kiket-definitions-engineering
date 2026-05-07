@@ -11,14 +11,14 @@ This definition provides engineering operations workflows including:
 - **Intake Form**: Internal bug reporting
 - **Boards**: Bug board and incident response board
 - **Dashboard**: Bug metrics, incident MTTR, SLA compliance
-- **Analytics**: Bug resolution trends, incident frequency, deployment velocity, backlog aging
+- **Dashboards**: Bug resolution trends, incident frequency, deployment velocity, backlog aging
 - **Automations**: Bug triage, critical alerts, incident commander assignment
 
 ## Structure
 
 ```
 .kiket/
-├── project.yaml           # Definition metadata
+├── workspace.yaml           # Definition metadata
 ├── case_types.yaml       # Bug and incident case types
 ├── workflows/
 │   ├── bug.yaml           # Bug tracking workflow

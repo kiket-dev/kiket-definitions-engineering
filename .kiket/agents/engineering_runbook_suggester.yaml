@@ -11,10 +11,10 @@ agent:
         Suggest runbooks and remediation steps for this incident.
 
         **Incident:**
-        - Title: {{issue.title}}
-        - Severity: {{issue.custom_fields.severity}}
-        - Affected Services: {{issue.custom_fields.affected_services}}
-        - Symptoms: {{issue.description}}
+        - Title: {{case.title}}
+        - Severity: {{case.custom_fields.severity}}
+        - Affected Services: {{case.custom_fields.affected_services}}
+        - Symptoms: {{case.description}}
 
         **Available Runbooks:**
         {{#each context.runbooks}}

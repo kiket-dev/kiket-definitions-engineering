@@ -11,9 +11,9 @@ agent:
         Check if this bug report is a duplicate of existing bugs.
 
         **New Bug:**
-        - Title: {{issue.title}}
-        - Description: {{issue.description}}
-        - Component: {{issue.custom_fields.component}}
+        - Title: {{case.title}}
+        - Description: {{case.description}}
+        - Component: {{case.custom_fields.component}}
 
         **Recent Bugs:**
         {{#each context.recent_bugs}}

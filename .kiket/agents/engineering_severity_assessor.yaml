@@ -11,10 +11,10 @@ agent:
         Assess the severity of this incident.
 
         **Incident:**
-        - Title: {{issue.title}}
-        - Description: {{issue.description}}
-        - Affected Services: {{issue.custom_fields.affected_services}}
-        - Detection Method: {{issue.custom_fields.detection_method}}
+        - Title: {{case.title}}
+        - Description: {{case.description}}
+        - Affected Services: {{case.custom_fields.affected_services}}
+        - Detection Method: {{case.custom_fields.detection_method}}
 
         **Severity Levels:**
         - **P1 (Critical)**: Complete outage, data loss, security breach

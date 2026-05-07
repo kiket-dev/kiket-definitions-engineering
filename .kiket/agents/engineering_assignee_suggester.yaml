@@ -11,16 +11,16 @@ agent:
         Suggest the best assignee for this bug.
 
         **Bug:**
-        - Title: {{issue.title}}
-        - Component: {{issue.custom_fields.component}}
-        - Severity: {{issue.custom_fields.severity}}
+        - Title: {{case.title}}
+        - Component: {{case.custom_fields.component}}
+        - Severity: {{case.custom_fields.severity}}
 
         **Team Members:**
         {{#each context.team_members}}
         - {{this.name}}:
           - Expertise: {{this.expertise}}
           - Current workload: {{this.open_issues}} open issues
-          - Recent activity in {{issue.custom_fields.component}}: {{this.component_commits}} commits
+          - Recent activity in {{case.custom_fields.component}}: {{this.component_commits}} commits
         {{/each}}
 
         Consider:

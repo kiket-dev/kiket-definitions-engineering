@@ -11,12 +11,12 @@ agent:
         Analyze this bug report and categorize it.
 
         **Bug Report:**
-        - Title: {{issue.title}}
-        - Description: {{issue.description}}
-        - Steps to Reproduce: {{issue.custom_fields.steps_to_reproduce}}
-        - Expected: {{issue.custom_fields.expected_behavior}}
-        - Actual: {{issue.custom_fields.actual_behavior}}
-        - Environment: {{issue.custom_fields.environment}}
+        - Title: {{case.title}}
+        - Description: {{case.description}}
+        - Steps to Reproduce: {{case.custom_fields.steps_to_reproduce}}
+        - Expected: {{case.custom_fields.expected_behavior}}
+        - Actual: {{case.custom_fields.actual_behavior}}
+        - Environment: {{case.custom_fields.environment}}
 
         Determine:
         1. **Severity**: critical, high, medium, low

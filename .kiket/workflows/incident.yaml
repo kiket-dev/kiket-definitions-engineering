@@ -21,22 +21,22 @@ states:
       - action: notify
         recipients:
           roles: [oncall, engineering_lead]
-        message: "🚨 INCIDENT: ${issue.title} - Severity: ${issue.custom_fields.severity}"
+        message: "🚨 INCIDENT: ${case.title} - Severity: ${case.custom_fields.severity}"
         level: critical
       - action: webhook
         url: "${env.SLACK_WEBHOOK}"
         method: POST
         body:
           channel: "#incidents"
-          text: "🚨 New incident: ${issue.title}"
+          text: "🚨 New incident: ${case.title}"
           attachments:
             - color: danger
               fields:
                 - title: Severity
-                  value: "${issue.custom_fields.severity}"
+                  value: "${case.custom_fields.severity}"
                   short: true
                 - title: Affected Services
-                  value: "${issue.custom_fields.affected_services}"
+                  value: "${case.custom_fields.affected_services}"
                   short: true
 
   investigating:
@@ -91,7 +91,7 @@ states:
         method: POST
         body:
           status: investigating
-          incident_id: "${issue.id}"
+          incident_id: "${case.id}"
           message: "We are aware of the issue and actively working on a fix."
 
   resolved:
@@ -106,14 +106,14 @@ states:
       - action: notify
         recipients:
           roles: [engineering, product]
-        message: "✅ Incident resolved: ${issue.title}"
+        message: "✅ Incident resolved: ${case.title}"
         level: success
       - action: webhook
         url: "${env.STATUS_PAGE_WEBHOOK}"
         method: POST
         body:
           status: resolved
-          incident_id: "${issue.id}"
+          incident_id: "${case.id}"
 
   postmortem:
     type: final
@@ -148,10 +148,10 @@ states:
       - action: anchor_data
         data:
           type: incident_postmortem
-          incident_id: "${issue.id}"
-          severity: "${issue.custom_fields.severity}"
+          incident_id: "${case.id}"
+          severity: "${case.custom_fields.severity}"
           duration_minutes: "${context.incident_duration}"
-          root_cause: "${issue.custom_fields.root_cause}"
+          root_cause: "${case.custom_fields.root_cause}"
         tags: [incident, postmortem, compliance]
 
 transitions:

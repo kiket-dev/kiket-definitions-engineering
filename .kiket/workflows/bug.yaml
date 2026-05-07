@@ -64,8 +64,8 @@ states:
         method: POST
         body:
           action: create_branch
-          issue_id: "${issue.id}"
-          branch_name: "fix/${issue.id}-${issue.title | slugify}"
+          issue_id: "${case.id}"
+          branch_name: "fix/${case.id}-${case.title | slugify}"
 
   testing:
     type: active
@@ -118,15 +118,15 @@ states:
       - action: notify
         recipients:
           fields: [reporter]
-        message: "Bug #${issue.id} has been fixed and deployed!"
+        message: "Bug #${case.id} has been fixed and deployed!"
         level: success
       - action: webhook
         url: "${env.CHANGELOG_WEBHOOK}"
         method: POST
         body:
           type: bug_fix
-          issue_id: "${issue.id}"
-          title: "${issue.title}"
+          issue_id: "${case.id}"
+          title: "${case.title}"
 
   wont_fix:
     type: final

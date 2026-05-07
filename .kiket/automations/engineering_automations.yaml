@@ -41,7 +41,7 @@ automations:
       - type: notify
         recipients:
           roles: [engineering_lead, oncall]
-        message: "🔴 Critical bug reported: {{issue.title}}"
+        message: "🔴 Critical bug reported: {{case.title}}"
         level: critical
       - type: add_watcher
         roles: [engineering_lead]
@@ -73,7 +73,7 @@ automations:
       - type: notify
         recipients:
           roles: [engineering, oncall]
-        message: "🚨 {{issue.custom_fields.severity}} Incident: {{issue.title}}"
+        message: "🚨 {{case.custom_fields.severity}} Incident: {{case.title}}"
         level: critical
 
   - id: postmortem-reminder
@@ -95,10 +95,10 @@ automations:
         recipients:
           user: custom_fields.incident_commander
           roles: [engineering_lead]
-        message: "📝 Postmortem needed for incident #{{issue.id}}: {{issue.title}}"
+        message: "📝 Postmortem needed for incident #{{case.id}}: {{case.title}}"
       - type: schedule_reminder
         delay: 48h
-        message: "⏰ Postmortem still pending for incident #{{issue.id}}"
+        message: "⏰ Postmortem still pending for incident #{{case.id}}"
         conditions:
           - field: status
             equals: postmortem
@@ -120,7 +120,7 @@ automations:
         recipients:
           user: assignee
           roles: [engineering_lead]
-        message: "⛔ SLA BREACHED: Bug #{{issue.id}} ({{issue.custom_fields.severity}})"
+        message: "⛔ SLA BREACHED: Bug #{{case.id}} ({{case.custom_fields.severity}})"
         level: critical
       - type: add_label
         label: sla-breached

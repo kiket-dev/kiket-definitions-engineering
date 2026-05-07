@@ -11,8 +11,8 @@ agent:
         Analyze logs related to this incident.
 
         **Incident:**
-        - Title: {{issue.title}}
-        - Affected Services: {{issue.custom_fields.affected_services}}
+        - Title: {{case.title}}
+        - Affected Services: {{case.custom_fields.affected_services}}
         - Started: {{context.incident_start}}
 
         **Recent Logs:**

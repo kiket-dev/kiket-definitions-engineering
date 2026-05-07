@@ -105,7 +105,7 @@ intake_form:
     message: |
       Your bug report has been submitted and will be triaged shortly.
 
-      **Bug ID:** #{{issue.id}}
+      **Bug ID:** #{{case.id}}
 
   notifications:
     on_submit:
